@@ -6,16 +6,51 @@ import { Button, TextField } from '@mui/material';
 import { QRCodeCanvas } from 'qrcode.react';
 import bg from './login.png';
 
+const QR_SIZE = 300;
+const LOGO_MAX = Math.round(QR_SIZE * 0.2); // ~20% of QR — readable & scannable
+
+function fitLogoSize(naturalWidth, naturalHeight, maxSize) {
+  if (!naturalWidth || !naturalHeight) {
+    return { width: maxSize, height: maxSize };
+  }
+
+  const ratio = naturalWidth / naturalHeight;
+
+  if (ratio >= 1) {
+    return {
+      width: maxSize,
+      height: Math.max(1, Math.round(maxSize / ratio)),
+    };
+  }
+
+  return {
+    width: Math.max(1, Math.round(maxSize * ratio)),
+    height: maxSize,
+  };
+}
+
 function App() {
   const [url, setUrl] = useState('');
   const [logo, setLogo] = useState(null);
-  const size = 300;
-  const logoSize = Math.round(size * 0.22);
+  const [logoDims, setLogoDims] = useState({ width: LOGO_MAX, height: LOGO_MAX });
 
   useEffect(() => {
     return () => {
       if (logo) URL.revokeObjectURL(logo);
     };
+  }, [logo]);
+
+  useEffect(() => {
+    if (!logo) {
+      setLogoDims({ width: LOGO_MAX, height: LOGO_MAX });
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      setLogoDims(fitLogoSize(img.naturalWidth, img.naturalHeight, LOGO_MAX));
+    };
+    img.src = logo;
   }, [logo]);
 
   const handleLogoUpload = (e) => {
@@ -99,17 +134,18 @@ function App() {
           <div className="p-6 bg-white/90 rounded-lg">
             <QRCodeCanvas
               id="canvas"
-              className="mx-auto"
+              className="mx-auto block"
               value={url || ' '}
-              size={size}
+              size={QR_SIZE}
               level="H"
               includeMargin
+              style={{ width: QR_SIZE, height: QR_SIZE }}
               imageSettings={
                 logo
                   ? {
                       src: logo,
-                      height: logoSize,
-                      width: logoSize,
+                      width: logoDims.width,
+                      height: logoDims.height,
                       excavate: true,
                     }
                   : undefined
