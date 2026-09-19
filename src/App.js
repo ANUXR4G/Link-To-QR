@@ -7,7 +7,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import bg from './login.png';
 
 const QR_SIZE = 300;
-const LOGO_MAX = Math.round(QR_SIZE * 0.2); // ~20% of QR — readable & scannable
+const LOGO_MAX = Math.round(QR_SIZE * 0.28); // ~28% of QR — larger logo, still scannable with level H
 
 function fitLogoSize(naturalWidth, naturalHeight, maxSize) {
   if (!naturalWidth || !naturalHeight) {
